@@ -1,12 +1,12 @@
-from typing import Dict, Any
-from abc import ABC, abstractmethod
+import requests
 from enum import Enum
-from dataclasses import dataclass
+from typing import Dict, Any
 from datetime import datetime
+from dataclasses import dataclass
+from abc import ABC, abstractmethod
 
-
-class TYPE(Enum):
-    NORMAL = 1
+from src.crawler.utils import retry, get_soup
+from config import Config
 
 
 @dataclass
@@ -15,8 +15,6 @@ class News:
     author: str
     created_at: datetime
     content: str
-    type: TYPE
-    category: str
     url: str
 
 
@@ -44,6 +42,16 @@ class BaseCrawler(ABC):
     @property
     def number_of_news(self):
         return self.__n_news
+
+    @get_soup
+    @retry(times=Config.RETRY_TIMES)
+    def _fetch(self, url: str, *args, **kwargs):
+        timeout = kwargs.get("timeout") or self.timeout
+        response = requests.get(url, timeout=timeout)
+
+        assert response.status_code == 200, "Cannot load page"
+
+        return response.text
 
     @abstractmethod
     def _scrape_news(self, url: str) -> News:

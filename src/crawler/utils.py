@@ -36,18 +36,3 @@ def get_soup(func: Callable):
         return soup
 
     return wrapper
-
-
-@get_soup
-@retry(times=3)
-def fetch(url: str, *args, **kwargs) -> str:
-    timeout = kwargs.get("timeout", 60)
-    response = requests.get(url, timeout=timeout)
-
-    assert response.status_code == 200, "Cannot load page"
-
-    return response.text
-
-
-if __name__ == "__main__":
-    fetch(url="https://dantri.com.vn/", timeout=10)
