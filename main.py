@@ -24,6 +24,6 @@ if __name__ == "__main__":
     start_time = time.time()
     if args.method == "sequential":
         dantri = Dantri()
-        news = dantri.crawl(max_pagination=1)
+        news = dantri.crawl(max_pagination=1, link_only=True)
         if args.eval:
             print(f"Total time: {time.time() - start_time}")
