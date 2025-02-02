@@ -65,8 +65,10 @@ if __name__ == "__main__":
 
         consumers = []
 
-        for _ in range(args.num_workers):
-            consumer = Consumer(queue=q, instance=dantri, sleep_time=0.5)
+        for id in range(args.num_workers):
+            consumer = Consumer(
+                queue=q, instance=dantri, sleep_time=0.5, consumer_id=id
+            )
             consumer.start()
             consumers.append(consumer)
 
