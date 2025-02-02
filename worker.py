@@ -30,6 +30,7 @@ class Consumer(Thread):
         while not self.q.empty():
             url = self.q.get(timeout=self.timeout)
 
+            print("Scraping ", url)
             time.sleep(self.sleep_time)
             result = self.scrape_news(url=url)
 
