@@ -54,9 +54,13 @@ class BaseCrawler(ABC):
         return response.text
 
     @abstractmethod
-    def _scrape_news(self, url: str) -> News:
+    def _scrape_news(self, url: str, *args, **kwargs) -> News:
         raise NotImplementedError("_scrape_news() must be implemented.")
 
     @abstractmethod
     def crawl(self):
         raise NotImplementedError("crawl() must be implemented.")
+
+    @abstractmethod
+    def scrape_news(self, url: str, *args, **kwargs) -> News:
+        raise NotImplemented("scrape_news() must be implemented.")

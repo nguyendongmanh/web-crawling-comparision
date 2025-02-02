@@ -114,7 +114,7 @@ class Dantri(BaseCrawler):
 
     def crawl(
         self, max_pagination: int = 5, link_only: bool = False, *args, **kwargs
-    ) -> List[News]:
+    ) -> List[News] | List[str]:
         """
         Crawl news from Dantri (https://dantri.com.vn/). This method will crawl all news from all topics in the website.
 
@@ -190,3 +190,6 @@ class Dantri(BaseCrawler):
             time.sleep(Config.SLEEP_TIME)
 
         return news
+
+    def scrape_news(self):
+        return self._scrape_news
