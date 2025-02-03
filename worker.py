@@ -27,25 +27,28 @@ class Consumer(Thread):
     def __init__(
         self,
         queue: Queue,
-        instance: Dantri,
         consumer_id: int,
         timeout: int = 60,
         sleep_time: float = 0.2,
+        *args,
+        **kwargs,
     ):
         Thread.__init__(self)
         self.q = queue
         self.timeout = timeout
         self.sleep_time = sleep_time
         self.consumer_id = consumer_id
+        self.progress_bar = kwargs.get("progress_bar")
 
     def run(self):
         while not self.q.empty():
             url = self.q.get(timeout=self.timeout)
-
-            print(f"Consumer {self.consumer_id} is scraping {url}")
             result = self._scrape_news(url=url)
             # handle more task
             self.q.task_done()
+
+            if self.progress_bar:
+                self.progress_bar.update(1)
 
     def _scrape_news(self, url: str, *args, **kwargs):
         """
