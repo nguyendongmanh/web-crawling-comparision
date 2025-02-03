@@ -30,6 +30,13 @@ if __name__ == "__main__":
         default=4,
     )
 
+    parser.add_argument(
+        "--num_news",
+        type=int,
+        help="The number of links. Default is 1000",
+        default=1000,
+    )
+
     args = parser.parse_args()
 
     q = Queue()
@@ -38,6 +45,7 @@ if __name__ == "__main__":
     if os.path.exists("data/urls.json"):
         with open("data/urls.json", "r", encoding="utf-8") as f:
             links = json.load(f)
+            links = links[: args.num_news]
     else:
         assert (
             args.max_pagination > 0
@@ -67,7 +75,7 @@ if __name__ == "__main__":
 
         for id in range(args.num_workers):
             consumer = Consumer(
-                queue=q, instance=dantri, sleep_time=0.2, consumer_id=id
+                queue=q, instance=dantri, sleep_time=0.5, consumer_id=id
             )
             consumer.start()
             consumers.append(consumer)

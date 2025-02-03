@@ -1,4 +1,5 @@
 import time
+import random
 import requests
 from queue import Queue
 from typing import List
@@ -86,8 +87,12 @@ class Consumer(Thread):
     @get_soup
     @retry(times=Config.RETRY_TIMES)
     def _fetch(self, url: str, *args, **kwargs):
+
+        headers = Config.HEADER
+        headers["User-Agent"] = random.choice(Config.USER_AGENTS)
+
         timeout = kwargs.get("timeout") or self.timeout
-        response = requests.get(url, timeout=timeout)
+        response = requests.get(url, timeout=timeout, headers=headers)
 
         assert response.status_code == 200, "Cannot load page"
 

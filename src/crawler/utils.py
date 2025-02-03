@@ -2,9 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 from functools import wraps
 from typing import Callable
+import time
 
 
-def retry(times: int):
+def retry(times: int, sleep_time: float = 0.5):
     def decorator(func: Callable):
         @wraps(func)
         def warpper(url: str, *args, **kwargs):
@@ -18,6 +19,8 @@ def retry(times: int):
                             times - attempt
                         )
                     )
+
+                    time.sleep(sleep_time)
                 attempt += 1
             return None
 
