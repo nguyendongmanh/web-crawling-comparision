@@ -3,6 +3,8 @@ import json
 import time
 import argparse
 from queue import Queue
+from tqdm import tqdm
+
 from src.crawler.dantri import Dantri
 from worker import Producer, Consumer
 
@@ -31,7 +33,7 @@ if __name__ == "__main__":
     )
 
     parser.add_argument(
-        "--num_news",
+        "--num_links",
         type=int,
         help="The number of links. Default is 1000",
         default=1000,
@@ -45,7 +47,7 @@ if __name__ == "__main__":
     if os.path.exists("data/urls.json"):
         with open("data/urls.json", "r", encoding="utf-8") as f:
             links = json.load(f)
-            links = links[: args.num_news]
+            links = links[: args.num_links]
     else:
         assert (
             args.max_pagination > 0
@@ -62,10 +64,17 @@ if __name__ == "__main__":
     start_time = time.time()
     if args.method == "sync":
         print("-------------------- Synchronous --------------------")
-        pass
+        scrape_news = dantri.scrape_news()
+
+        for link in tqdm(links):
+            result = scrape_news(url=link)
+            time.sleep(0.5)
+
+        print(f"Sync took {time.time() - start_time} to finish")
     elif args.method == "thread":
         print("-------------------- Threading --------------------")
         assert args.num_workers > 0, "The number of workers must be greater than 0"
+        progress_bar = tqdm(total=len(links), desc="Crawling URLs", unit="URL")
 
         producer = Producer(q, links)
 
@@ -75,7 +84,11 @@ if __name__ == "__main__":
 
         for id in range(args.num_workers):
             consumer = Consumer(
-                queue=q, instance=dantri, sleep_time=0.5, consumer_id=id
+                queue=q,
+                instance=dantri,
+                sleep_time=0.5,
+                consumer_id=id,
+                progress_bar=progress_bar,
             )
             consumer.start()
             consumers.append(consumer)
@@ -84,8 +97,8 @@ if __name__ == "__main__":
         q.join()
 
         [consumer.join() for consumer in consumers]
-
-        print(f"This method took {time.time() - start_time} to finish")
+        progress_bar.close()
+        print(f"Thread took {time.time() - start_time} to finish")
 
     elif args.method == "async":
         print("-------------------- Asynchronous --------------------")
