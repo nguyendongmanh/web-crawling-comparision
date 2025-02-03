@@ -1,5 +1,4 @@
 import requests
-from enum import Enum
 from typing import Dict, Any
 from datetime import datetime
 from dataclasses import dataclass
@@ -47,7 +46,7 @@ class BaseCrawler(ABC):
     @retry(times=Config.RETRY_TIMES)
     def _fetch(self, url: str, *args, **kwargs):
         timeout = kwargs.get("timeout") or self.timeout
-        response = requests.get(url, timeout=timeout)
+        response = requests.get(url, timeout=timeout, headers=Config.HEADER)
 
         assert response.status_code == 200, "Cannot load page"
 
